@@ -21,6 +21,7 @@ import org.drools.compiler.Cheese;
 import org.drools.compiler.CommonTestMethodBase;
 import org.drools.compiler.Message;
 import org.drools.compiler.Person;
+import org.drools.compiler.DomainObject;
 import org.drools.compiler.builder.impl.KnowledgeBuilderConfigurationImpl;
 import org.drools.compiler.builder.impl.KnowledgeBuilderImpl;
 import org.drools.compiler.compiler.DrlParser;
@@ -138,6 +139,45 @@ public class Misc2Test extends CommonTestMethodBase {
 
     private static final Logger logger = LoggerFactory.getLogger(Misc2Test.class);
 
+    
+    @Test
+    public void testIntegerValueZeroToNullComparison() throws Exception {
+
+        String str = 
+                "import org.drools.compiler.DomainObject;\n" +
+                "dialect \"mvel\"\n" +
+                "\n" +
+                "rule \"rule 1\"\n" +
+                "dialect 'mvel'\n" + 
+                "when\n" +
+                "DomainObject(value == 1)\n" +
+                "then\n" +
+                "end\n" +
+                "rule \"rule 2\"\n" +
+                "dialect 'mvel'\n" + 
+                "when\n" +
+                "DomainObject(value == 2)\n" +
+                "then\n" +
+                "end\n" +
+                "rule \"rule 3\"\n" +
+                "dialect 'mvel'\n" + 
+                "when\n" +
+                "DomainObject(value == null)\n" +
+                "then\n" +
+                "System.out.println(\"rule 3 fires\")\n" +
+                "end\n";             
+               
+        KnowledgeBase kbase = loadKnowledgeBaseFromString(str);
+        final StatefulKnowledgeSession ksession = kbase.newStatefulKnowledgeSession();
+
+        DomainObject d = new DomainObject();
+        d.setValue(0);
+        ksession.insert(d);
+
+        assertEquals(0, ksession.fireAllRules());
+        ksession.dispose();
+    }
+    
     @Test
     public void testUpdateWithNonEffectiveActivations() throws Exception {
         // JBRULES-3604
